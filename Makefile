@@ -6,7 +6,7 @@ BUILD_PATH = build
 BIN_PATH = $(BUILD_PATH)/bin
 
 # executable # 
-BIN_NAME = compression
+BIN_NAME = Huffman
 
 # extensions #
 SRC_EXT = cpp

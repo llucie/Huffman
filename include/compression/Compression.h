@@ -1,10 +1,10 @@
 /**
  * @file Compression.h
  * @author Lucie Boursier
- * @date 09-September-2019
+ * @date 09-August-2019
  * @brief This class is used to encode and decode an image.
  *        It implements the Huffman algorithm, which is an algo based on
- *        The frequency of the pixels in the image.
+ *        the frequency of the pixels in the image.
  *        Input pixels are encoded in unsigned shorts (16 bits), and the output format
  *        is an array of int values.
  *        This array of ints can be passed to the decode methode to retrieve the initial pixels.
@@ -103,7 +103,7 @@ private:
     * The next step is to build the codes map, which maps the pixel to the code. The algo will go through the entire tree
     * and stores the code when finding a Leaf.
     */
-   void HuffmanCodes();
+   void buildHuffmanTree();
 
    /**
     * @brief This function computes the frequency of each pixel contained in the input pixels array.
@@ -127,9 +127,9 @@ private:
    std::unordered_map<unsigned short, int> _freq;
   
    /**
-    * @brief STL priority queue to store heap tree, with respect to their heap root node value
+    * @brief STL priority queue to store heap tree, sorted by frequency
     */
-   std::priority_queue<Node*, std::vector<Node*>, compare> _minHeap;
+   std::priority_queue<Node*, std::vector<Node*>, compare> _huffmanTree;
 };
 }
 #endif // COMPRESSION_COMPRESSOR_H

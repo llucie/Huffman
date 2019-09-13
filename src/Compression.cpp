@@ -1,8 +1,9 @@
-/*! \file Compression.cpp
-    \brief TODO
-    
-    Details: TODO
-*/
+/**
+ * @file Compression.cpp
+ * @author Lucie Boursier
+ * @date 09-August-2019
+ * @brief This file contains the implementation of the Huffman algorithm
+ */
 
 #include "compression/Compression.h"
 #include <bits/stdc++.h>
@@ -22,19 +23,22 @@ int* Compression::encodePixels(const unsigned short *pixels, unsigned int size, 
    clock_t t;
    t = clock();
 
+   // If the Huffman tree has not been built yet, generate the frequency map and build the tree
    std::string encodedString;
    if(_codes.empty()) {
       std::cout << "Compute frequency and huffman codes" << std::endl;
       computeFrequencyMap(pixels, size);
-      HuffmanCodes();
+      buildHuffmanTree();
    } else {
       std::cout << "Huffman codes already exist, no need to recompute them." << std::endl;
    }
 
+   // Go through the input pixels to encode the image
    for (unsigned int i = 0; i < size; i++) {
       encodedString += _codes[pixels[i]];
    }
 
+   // Build the output array: it contains ints which represent the bit sequence of the encoded image
    encodedPixelSize = encodedString.size();
    unsigned int sizeBitArray = (encodedPixelSize / SIZE_UINT) + ((encodedPixelSize % SIZE_UINT != 0) ? 1 : 0);
 
@@ -69,8 +73,9 @@ void Compression::decodePixels(int* encodedPixels, unsigned int encodedPixelsSiz
    outputPixels = new unsigned short[outputPixelsSize];
 
    unsigned int index = 0;
-   Node* curr = _minHeap.top();
+   Node* curr = _huffmanTree.top();
 
+   // Go through the Huffman tree to retrieve the pixel associated to the input encodedPixels array
    for (unsigned int i = 0; i < encodedPixelsSize; i++) {
       if (encodedPixels[(i/SIZE_UINT)] & (1 << (i%SIZE_UINT))) {
          curr = curr->right;
@@ -78,11 +83,11 @@ void Compression::decodePixels(int* encodedPixels, unsigned int encodedPixelsSiz
          curr = curr->left;
       }
 
-      // reached leaf node
+      // Reached leaf node, append pixel value to output array and go back to Huffman root node
       if (curr->left == NULL && curr->right == NULL) {
          outputPixels[index] = curr->data;
          index++;
-         curr = _minHeap.top();
+         curr = _huffmanTree.top();
       }
    }
 
@@ -106,28 +111,28 @@ void Compression::storeCodes(Node* root, const std::string &str)
 
 //==========================================================================
 
-void Compression::HuffmanCodes()
+void Compression::buildHuffmanTree()
 {
    Node *left, *right, *top;
 
    for (std::unordered_map<unsigned short, int>::iterator v = _freq.begin(); v != _freq.end(); v++) {
-      _minHeap.push(new Node(v->first, true, v->second));
+      _huffmanTree.push(new Node(v->first, true, v->second));
    }
 
    // Frequency map is no longer needed, clear it
    _freq.clear();
 
-   while (_minHeap.size() != 1) {
-      left = _minHeap.top();
-      _minHeap.pop();
-      right = _minHeap.top();
-      _minHeap.pop();
+   while (_huffmanTree.size() != 1) {
+      left = _huffmanTree.top();
+      _huffmanTree.pop();
+      right = _huffmanTree.top();
+      _huffmanTree.pop();
       top = new Node(0, false, left->freq + right->freq);
       top->left = left;
       top->right = right;
-      _minHeap.push(top);
+      _huffmanTree.push(top);
    }
-   storeCodes(_minHeap.top(), "");
+   storeCodes(_huffmanTree.top(), "");
 }
 
 //==========================================================================
